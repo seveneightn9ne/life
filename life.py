@@ -81,10 +81,9 @@ while True:
 		if event.type==pygame.QUIT: sys.exit()
 		if paused and event.type==pygame.MOUSEBUTTONUP:
 			pos = pygame.mouse.get_pos()
-			# print "pos =", pos
-			clicked_cell = [cell for cell in row for row in cells if cell.rect.collidepoint(pos)][0]
-			# print clicked_cell.position
-			clicked_cell.live()
+			clicked_cells = [cell for row in cells for cell in row if cell.rect.collidepoint(pos)]
+			if clicked_cells:
+				clicked_cells[0].live()
 		if event.type==KEYUP:
 			paused = not paused #toggle pause state
 	screen.fill(black)
