@@ -79,11 +79,12 @@ paused = True # In the beginning, set the board
 while True:
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT: sys.exit()
-		if paused and event.type==pygame.MOUSEBUTTONUP:
+		if event.type==pygame.MOUSEBUTTONUP:
+			paused = True
 			pos = pygame.mouse.get_pos()
 			clicked_cells = [cell for row in cells for cell in row if cell.rect.collidepoint(pos)]
 			if clicked_cells:
-				clicked_cells[0].live()
+				clicked_cells[0].alive = not clicked_cells[0].alive
 		if event.type==KEYUP:
 			paused = not paused #toggle pause state
 	screen.fill(black)
@@ -100,11 +101,15 @@ while True:
 		for row in cells:
 			for cell in row:
 				cell.plan_next_step()
-	 	
-	 	#Execute next steps
-	 	for row in cells:
-	 		for cell in row:
-	 			cell.alive = cell.next_step
+		
+		#Execute next steps
+		for row in cells:
+			for cell in row:
+				cell.alive = cell.next_step
+	else:
+		myfont = pygame.font.SysFont("monospace", 15)
+		label = myfont.render("paused",15,green)
+		screen.blit(label, (0,0))
 
 	pygame.display.flip()
 	if not paused: 
