@@ -15,9 +15,8 @@ class Cell(object):
 		self.alive = False
 		self.next_step = False
 		self.neighbors = []
+		self.rect = pygame.Rect((self.position[0]*20, self.position[1]*20), (20, 20))
 
-	def rect(self):
-		return pygame.Rect((self.position[0]*20, self.position[1]*20), (20, 20))
 	def color(self):
 		return white if self.alive else black
 	def live_neighbors(self):
@@ -57,7 +56,7 @@ for top in range(0, height/20):
 	cellrow = []
 	for left in range(0, width/20):
 		cell = Cell((left, top))
-		cell.alive = bool(random.randrange(100)>75) #randomize livelihood
+		# cell.alive = bool(random.randrange(100)>75) #randomize livelihood
 		cellrow.append(cell)
 	cells.append(cellrow)
 #Add neighbors
@@ -75,11 +74,19 @@ for v in range(0, len(cells)-1):
 		if h > 0: cell.neighbors.append(cells[v][h-1])
 		if h < len(cells[v])-1: cell.neighbors.append(cells[v][h+1])
 
+paused = True # In the beginning, set the board
 
 while True:
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT: sys.exit()
-
+		if paused and event.type==pygame.MOUSEBUTTONUP:
+			pos = pygame.mouse.get_pos()
+			# print "pos =", pos
+			clicked_cell = [cell for cell in row for row in cells if cell.rect.collidepoint(pos)][0]
+			# print clicked_cell.position
+			clicked_cell.live()
+		if event.type==KEYUP:
+			paused = not paused #toggle pause state
 	screen.fill(black)
 
 	#Draw cells
@@ -87,17 +94,19 @@ while True:
 		for cell in row:
 			# print "pygame.draw.rect("+str(type(screen))+", "+str(type(cell.rect()))+", "+str(type(cell.color()))+")"
 			# print "Drawing cell "+str(cell.color())
-			pygame.draw.rect(screen, cell.color(), cell.rect())
+			pygame.draw.rect(screen, cell.color(), cell.rect)
 
-	#Plan next steps
-	for row in cells:
-		for cell in row:
-			cell.plan_next_step()
- 	
- 	#Execute next steps
- 	for row in cells:
- 		for cell in row:
- 			cell.alive = cell.next_step
+	if not paused:
+		#Plan next steps
+		for row in cells:
+			for cell in row:
+				cell.plan_next_step()
+	 	
+	 	#Execute next steps
+	 	for row in cells:
+	 		for cell in row:
+	 			cell.alive = cell.next_step
 
 	pygame.display.flip()
-	time.sleep(.5)
+	if not paused: 
+		time.sleep(.5)
